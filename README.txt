@@ -33,7 +33,6 @@ Installation des dépendances :
 Ouvrez un terminal dans le dossier du projet et exécutez :
 pip install -r requirements.txt
 
-⚠️ NOTE IMPORTANTE CONCERNANT LES DONNÉES (DATA) ⚠️ En raison de la limite de taille pour le dépôt du projet, le dossier "/data" ne contient pas les fichiers bruts des séries (sous-titres/zips). POUR FAIRE FONCTIONNER L'APPLICATION, VOUS DEVEZ : 1. Récupérer le dossier contenant les dossiers de séries (fourni séparément ou à télécharger). 2. Placer ces dossiers de séries à l'intérieur du répertoire "/data" du projet. (L'arborescence doit être : /SeriesMiner/data/[Nom_De_La_Serie]/...) 
 
 Initialisation des données (ETL) :
 Avant de lancer le serveur, il faut construire la base de données :
