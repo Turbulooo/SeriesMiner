@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SeriesMiner - Dashboard</title>
+
+    <!-- Bootstrap & Fonts -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='Css/style.css') }}">
+
+</head>
+
+<body onload="initPage()">
+
+    <div class="app-wrapper">
+
+        <!-- 1. GAUCHE : NAVIGATION -->
+        <aside class="sidebar-left">
+            <div class="logo"><i class="fas fa-cube"></i>SeriesMiner</div>
+            <nav class="d-flex flex-column gap-2">
+                <a onclick="switchView('home')" class="nav-link-custom active" id="nav-home">
+                    <i class="fas fa-th-large"></i> Catalogue
+                </a>
+                <a onclick="switchView('my-ratings')" class="nav-link-custom" id="nav-ratings" style="display:none;">
+                    <i class="fas fa-star"></i> Mes Notes
+                </a>
+            </nav>
+        </aside>
+
+        <!-- 2. CENTRE : CONTENU PRINCIPAL -->
+        <main class="main-content">
+
+            <!-- Header avec Auth -->
+            <div class="top-auth-bar">
+                <div id="auth-buttons">
+                    <button onclick="openModal('loginModal')"
+                        class="btn btn-outline-light btn-sm rounded-pill px-3">Connexion</button>
+                    <button onclick="openModal('registerModal')"
+                        class="btn btn-light btn-sm rounded-pill px-3 fw-bold">Inscription</button>
+                </div>
+                <div id="user-info" style="display:none; align-items:center; gap:10px;">
+                    <span class="text-muted small">Bonjour <strong class="text-white"
+                            id="displayUsername"></strong></span>
+                    <button onclick="logout()" class="btn btn-outline-danger btn-sm rounded-circle"
+                        title="Déconnexion"><i class="fas fa-power-off"></i></button>
+                </div>
+            </div>
+
+            <!-- VUE 1 : ACCUEIL -->
+            <div id="view-home" class="view-section active">
+                <div class="search-bar-container">
+                    <div style="position:relative; max-width: 600px;">
+                        <i class="fas fa-search search-icon"></i>
+                        <!-- On enlève le onkeyup -->
+                        <input type="text" id="searchInput" class="search-input"
+                            placeholder="Rechercher une série (ex: crash avion, île...)">
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="fw-bold m-0" id="listTitle">Toutes les séries</h4>
+                    <span class="badge bg-secondary" id="countBadge">Loading...</span>
+                </div>
+
+                <div id="seriesGrid" class="row g-3">
+                    <!-- JS inject -->
+                </div>
+            </div>
+
+            <!-- VUE 2 : MES NOTES -->
+            <div id="view-my-ratings" class="view-section">
+                <h2 class="fw-bold mb-4">Mes Évaluations</h2>
+                <div id="ratingsList" class="d-flex flex-column gap-3">
+                    <!-- JS inject -->
+                </div>
+            </div>
+
+        </main>
+
+        <!-- 3. DROITE : RECOMMANDATIONS -->
+        <aside class="sidebar-right">
+            <h5 class="fw-bold mb-1">Recommandations</h5>
+            <p class="text-muted small mb-4" id="recoSubtitle">Tendances</p>
+
+            <div id="recoList">
+                <!-- JS inject -->
+            </div>
+
+            <button onclick="openRecoModal()" class="btn btn-outline-light w-100 mt-3 rounded-pill btn-sm">Voir
+                tout</button>
+        </aside>
+
+    </div>
+
+    <!-- MODALS -->
+
+    <!-- Login -->
+    <div class="modal fade" id="loginModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="m-0 fw-bold">Connexion</h6><button type="button" class="btn-close"
+                        data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="text" id="loginUser" class="form-control mb-3" placeholder="Pseudo">
+                    <input type="password" id="loginPass" class="form-control mb-3" placeholder="Mot de passe">
+                    <button onclick="auth('login')" class="btn btn-light w-100 fw-bold"
+                        style="background:var(--accent); border:none; color:white;">Entrer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Register -->
+    <div class="modal fade" id="registerModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="m-0 fw-bold">Inscription</h6><button type="button" class="btn-close"
+                        data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="text" id="regUser" class="form-control mb-3" placeholder="Pseudo">
+                    <input type="password" id="regPass" class="form-control mb-3" placeholder="Mot de passe">
+                    <button onclick="auth('register')" class="btn btn-light w-100 fw-bold"
+                        style="background:#10b981; border:none; color:white;">Créer compte</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- See All Recos -->
+    <div class="modal fade" id="recoModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h6 class="m-0 fw-bold">Top Recommandations</h6><button type="button" class="btn-close"
+                        data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="recoModalBody">
+                    <!-- List -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentUser = null;
+        let loginModal, registerModal, recoModal;
+        let allRecommendations = [];
+
+        function initPage() {
+            loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+            registerModal = new bootstrap.Modal(document.getElementById('registerModal'));
+            recoModal = new bootstrap.Modal(document.getElementById('recoModal'));
+
+            loadAllSeries();
+            loadRecos();
+        }
+
+        // --- NAVIGATION ---
+        function switchView(view) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-link-custom').forEach(el => el.classList.remove('active'));
+
+            document.getElementById(`view-${view}`).classList.add('active');
+            const navId = view === 'home' ? 'nav-home' : 'nav-ratings';
+            document.getElementById(navId).classList.add('active');
+
+            if (view === 'my-ratings') loadMyRatings();
+        }
+
+        // --- API ---
+        async function loadAllSeries() {
+            try {
+                const res = await fetch('/api/series');
+                const data = await res.json();
+                document.getElementById('countBadge').innerText = data.length;
+                displaySeries(data);
+            } catch (e) { }
+        }
+
+        async function searchSeries() {
+            const q = document.getElementById('searchInput').value;
+            if (!q) { loadAllSeries(); document.getElementById('listTitle').innerText = "Toutes les séries"; return; }
+
+            try {
+                const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
+                const data = await res.json();
+                document.getElementById('listTitle').innerText = `Résultats pour "${q}"`;
+                document.getElementById('countBadge').innerText = data.length;
+                displaySeries(data);
+            } catch (e) { }
+        }
+
+        function displaySeries(list) {
+            const grid = document.getElementById('seriesGrid');
+            grid.innerHTML = '';
+            list.forEach(s => {
+                const stars = currentUser ? getStarsHTML(s.id) : '<small class="text-muted" style="font-size:0.8rem">Connexion requise</small>';
+                const badge = s.score > 0 ? `<div style="position:absolute; top:10px; right:10px; background:rgba(139,92,246,0.2); color:#8b5cf6; padding:2px 8px; border-radius:10px; font-size:0.7rem; font-weight:bold;">${s.score}</div>` : '';
+
+                grid.innerHTML += `
+                <div class="col-xl-3 col-lg-4 col-md-6">
+                    <div class="card-serie position-relative d-flex flex-column text-center">
+                        ${badge}
+                        <div class="mb-3 mt-2"><i class="fas fa-tv fa-2x text-muted opacity-25"></i></div>
+                        <h6 class="text-white text-truncate fw-bold mb-3" title="${s.title}">${s.title}</h6>
+                        <div class="mt-auto border-top border-dark pt-3 d-flex justify-content-center">${stars}</div>
+                    </div>
+                </div>
+            `;
+            });
+        }
+
+        async function loadRecos() {
+            const grid = document.getElementById('recoList');
+            const subtitle = document.getElementById('recoSubtitle');
+
+            subtitle.innerText = currentUser ? "Basé sur vos notes" : "Top Communauté";
+
+            try {
+                const res = await fetch('/api/recommend');
+                const data = await res.json();
+                allRecommendations = data;
+
+                grid.innerHTML = '';
+
+                if (data.length === 0) {
+                    if (currentUser) {
+                        grid.innerHTML = '<div class="text-center text-muted py-4 small"><i class="fas fa-star text-warning mb-2 fs-4"></i><br>Notez des séries pour activer vos recos !</div>';
+                    } else {
+                        grid.innerHTML = '<div class="text-center text-muted py-3 small">Soyez le premier à noter !</div>';
+                    }
+                    return;
+                }
+
+                data.slice(0, 5).forEach(s => {
+                    const stars = currentUser ? getStarsHTML(s.id) : '';
+                    const scoreLabel = currentUser ? 'Score IA' : 'Note Moy.';
+                    const badgeColor = currentUser ? 'bg-primary' : 'bg-success';
+
+                    grid.innerHTML += `
+                    <div class="reco-item">
+                        <div class="d-flex justify-content-between">
+                            <span class="fw-bold text-truncate" style="max-width:70%;" title="${s.title}">${s.title}</span>
+                            <span class="badge ${badgeColor}" style="font-size:0.7rem;">${s.score}</span>
+                        </div>
+                        <div class="d-flex justify-content-end mt-1 scale-sm">${stars}</div>
+                    </div>
+                `;
+                });
+            } catch (e) { }
+        }
+
+        function openRecoModal() {
+            const body = document.getElementById('recoModalBody');
+            body.innerHTML = '';
+            allRecommendations.forEach(s => {
+                body.innerHTML += `
+                <div class="d-flex justify-content-between align-items-center mb-3 p-2 border-bottom border-secondary">
+                    <span class="fw-bold">${s.title}</span>
+                    <span class="badge bg-primary">${s.score}</span>
+                </div>
+             `;
+            });
+            recoModal.show();
+        }
+
+        async function loadMyRatings() {
+            const list = document.getElementById('ratingsList');
+            try {
+                const res = await fetch('/api/my_ratings');
+                const data = await res.json();
+                list.innerHTML = '';
+
+                if (data.length === 0) { list.innerHTML = '<div class="text-muted">Aucune note.</div>'; return; }
+
+                data.forEach(s => {
+                    list.innerHTML += `
+                    <div class="p-3 rounded d-flex justify-content-between align-items-center" style="background:var(--bg-card); border:1px solid var(--border-subtle);">
+                        <span class="fw-bold fs-5">${s.title}</span>
+                        <div class="d-flex align-items-center gap-3">
+                            ${getStarsHTML(s.id, s.rating)}
+                            <button onclick="deleteRating(${s.id})" class="btn btn-sm btn-outline-danger border-0"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                `;
+                });
+            } catch (e) { }
+        }
+
+        // --- ACTIONS ---
+        function getStarsHTML(id, rating = 0) {
+            let html = '<div class="d-flex">';
+            for (let i = 1; i <= 5; i++) {
+                const active = i <= rating ? 'active' : '';
+                html += `<span class="star-rating ${active} mx-1" onclick="rate(${id}, ${i})">★</span>`;
+            }
+            return html + '</div>';
+        }
+
+        async function rate(id, val) {
+            if (!currentUser) { openModal('loginModal'); return; }
+            await fetch('/api/rate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ serie_id: id, rating: val })
+            });
+            refreshAll();
+        }
+
+        async function deleteRating(id) {
+            if (!confirm("Supprimer cette note ?")) return;
+            await fetch('/api/rate', {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ serie_id: id })
+            });
+            refreshAll();
+        }
+
+        function refreshAll() {
+            loadRecos();
+            if (document.getElementById('view-my-ratings').classList.contains('active')) loadMyRatings();
+            const q = document.getElementById('searchInput').value;
+            if (q) searchSeries(); else loadAllSeries();
+        }
+
+        // --- AUTH ---
+        function openModal(id) {
+            if (id === 'loginModal') loginModal.show();
+            if (id === 'registerModal') registerModal.show();
+        }
+        async function auth(action) {
+            const u = document.getElementById(action === 'login' ? 'loginUser' : 'regUser').value;
+            const p = document.getElementById(action === 'login' ? 'loginPass' : 'regPass').value;
+            if (!u || !p) return;
+
+            try {
+                const res = await fetch(`/api/${action}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: u, password: p })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    currentUser = data.username;
+                    updateUI(true);
+                    (action === 'login' ? loginModal : registerModal).hide();
+                    refreshAll();
+                } else alert(data.message);
+            } catch (e) { }
+        }
+        async function logout() {
+            await fetch('/api/logout', { method: 'POST' });
+            currentUser = null;
+            updateUI(false);
+            switchView('home');
+            location.reload();
+        }
+        function updateUI(logged) {
+            document.getElementById('auth-buttons').style.display = logged ? 'none' : 'block';
+            document.getElementById('user-info').style.display = logged ? 'flex' : 'none';
+            document.getElementById('nav-ratings').style.display = logged ? 'flex' : 'none';
+            if (logged) document.getElementById('displayUsername').innerText = currentUser;
+        }
+
+        // Enter key search
+        document.getElementById('searchInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') searchSeries();
+        });
+
+    </script>
+</body>
+
+</html>

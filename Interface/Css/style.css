@@ -1,0 +1,239 @@
+:root {
+    --bg-app: #050505;
+    --bg-sidebar: #000000;
+    --bg-card: #0f0f0f;
+    --bg-input: #1a1a1a;
+    --accent: #8b5cf6;
+    --accent-hover: #7c3aed;
+    --text-main: #ffffff;
+    --text-muted: #a1a1aa;
+    --border-subtle: #27272a;
+    --radius-card: 16px;
+}
+
+body {
+    background-color: var(--bg-app);
+    color: var(--text-main);
+    font-family: 'Inter', sans-serif;
+    overflow-x: hidden;
+}
+
+/* --- LAYOUT --- */
+.app-wrapper {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Sidebar GAUCHE (Nav) */
+.sidebar-left {
+    width: 240px;
+    background-color: var(--bg-sidebar);
+    border-right: 1px solid var(--border-subtle);
+    padding: 24px;
+    position: fixed;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    z-index: 100;
+}
+
+/* Main Content (Centre) */
+.main-content {
+    margin-left: 240px;
+    margin-right: 300px;
+    /* Espace pour la sidebar droite */
+    flex: 1;
+    padding: 30px 40px;
+}
+
+/* Sidebar DROITE (Recos) */
+.sidebar-right {
+    width: 300px;
+    background-color: var(--bg-sidebar);
+    border-left: 1px solid var(--border-subtle);
+    padding: 24px;
+    position: fixed;
+    right: 0;
+    height: 100vh;
+    overflow-y: auto;
+}
+
+/* --- ELEMENTS --- */
+.logo {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--text-main);
+    margin-bottom: 40px;
+}
+
+.logo i {
+    color: var(--accent);
+    margin-right: 10px;
+}
+
+.nav-link-custom {
+    color: var(--text-muted);
+    padding: 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 500;
+    transition: 0.2s;
+}
+
+.nav-link-custom:hover,
+.nav-link-custom.active {
+    background: rgba(139, 92, 246, 0.1);
+    color: var(--accent);
+}
+
+/* Search Bar */
+.search-bar-container {
+    position: sticky;
+    top: 0;
+    background: var(--bg-app);
+    z-index: 50;
+    padding-bottom: 20px;
+    padding-top: 10px;
+}
+
+.search-input {
+    background: var(--bg-input);
+    border: 1px solid var(--border-subtle);
+    color: white;
+    border-radius: 50px;
+    padding: 12px 20px 12px 45px;
+    width: 100%;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+.search-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+}
+
+/* Cards */
+.card-serie {
+    background: var(--bg-card);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-card);
+    padding: 15px;
+    height: 100%;
+    transition: 0.2s;
+}
+
+.card-serie:hover {
+    transform: translateY(-4px);
+    border-color: var(--accent);
+}
+
+.reco-item {
+    background: var(--bg-card);
+    border-radius: 12px;
+    padding: 12px;
+    margin-bottom: 12px;
+    border-left: 3px solid var(--accent);
+}
+
+/* Auth Buttons Top Right */
+.top-auth-bar {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+/* Modals */
+.modal-content {
+    background-color: #1a1a1a;
+    border: 1px solid var(--border-subtle);
+    color: white;
+}
+
+.form-control {
+    background: black;
+    border-color: var(--border-subtle);
+    color: white;
+}
+
+.form-control:focus {
+    background: black;
+    color: white;
+    border-color: var(--accent);
+    box-shadow: none;
+}
+
+.btn-close {
+    filter: invert(1);
+}
+
+/* Stars */
+.star-rating {
+    cursor: pointer;
+    color: #444;
+    font-size: 1.1rem;
+}
+
+.star-rating:hover,
+.star-rating.active {
+    color: #eab308;
+}
+
+/* Views visibility */
+.view-section {
+    display: none;
+}
+
+.view-section.active {
+    display: block;
+}
+
+/* --- RESPONSIVE MOBILE (Pour valider le point "Smartphone") --- */
+@media (max-width: 992px) {
+
+    /* Sur tablette et mobile, on cache la sidebar droite et gauche pour simplifier */
+    .sidebar-left {
+        width: 70px;
+        /* Sidebar réduite (icônes seulement) */
+        padding: 10px;
+    }
+
+    .sidebar-left .logo span,
+    .sidebar-left .nav-link-custom span {
+        display: none;
+    }
+
+    /* Cache le texte */
+    .logo {
+        margin-bottom: 20px;
+        font-size: 1.2rem;
+        justify-content: center;
+        display: flex;
+    }
+
+    .nav-link-custom {
+        justify-content: center;
+    }
+
+    .main-content {
+        margin-left: 70px;
+        margin-right: 0;
+        padding: 15px;
+    }
+
+    .sidebar-right {
+        display: none;
+        /* On cache les recos sur mobile pour ne pas surcharger */
+    }
+}

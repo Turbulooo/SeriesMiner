@@ -1,0 +1,19 @@
+# Ignorer les dossiers virtuels et caches
+__pycache__/
+venv/
+env/
+.idea/
+.vscode/
+
+# Ignorer les grosses données
+*.db
+*.sqlite3
+data/
+database/series.db
+
+# Ignorer les fichiers systèmes et zips
+.DS_Store
+Thumbs.db
+*.zip
+*.rar
+*.ova
