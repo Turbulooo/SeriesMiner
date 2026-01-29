@@ -41,7 +41,6 @@ python setup_etl.py
 
 Lancement de l'application :
 python app.py
-L'application sera accessible à l'adresse : https://www.google.com/search?q=http://127.0.0.1:5000
 
 --- LANCEMENT DES TESTS ---
 Pour exécuter la suite de tests automatisés :
